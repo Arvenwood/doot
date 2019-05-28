@@ -1,6 +1,7 @@
 package arven.doot.plugin;
 
 import com.google.inject.Inject;
+import flavor.pie.mcmoji.MCMoji;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
@@ -13,16 +14,18 @@ import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
+import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @Plugin(id = "doot", name = "doot", version = "1.0.0",
         authors = {"doot"}, url = "https://ore.spongepowered.org/doot/doot",
-        description = "doot doot")
+        description = "doot doot", dependencies = @Dependency(id = "mcmoji", optional = true))
 public class Doot {
 
     private final Logger logger;
@@ -59,7 +62,7 @@ public class Doot {
                                         for (Player player : Sponge.getServer().getOnlinePlayers()) {
                                             player.playSound(SoundTypes.ENTITY_VILLAGER_TRADING,
                                                     player.getPosition(), 1, 2);
-                                            player.sendMessage(Text.of("doot!"));
+                                            player.sendMessage(Text.of(Doot.this.getDootFor(player.getUniqueId())));
                                         }
                                     }
                                 })
@@ -79,7 +82,7 @@ public class Doot {
 
                                         ((Player) src).playSound(SoundTypes.ENTITY_VILLAGER_TRADING,
                                                 ((Player) src).getPosition(), 1, 2);
-                                        src.sendMessage(Text.of("doot!"));
+                                        src.sendMessage(Text.of(Doot.this.getDootFor(((Player) src).getUniqueId())));
                                     }
                                 })
                                 .interval(300, TimeUnit.MILLISECONDS)
@@ -94,4 +97,17 @@ public class Doot {
 
         Sponge.getCommandManager().register(this, doot, "doot");
     }
+
+    private String getDootFor(UUID id) {
+        if (Sponge.getPluginManager().isLoaded("mcmoji")) {
+            if (!MCMoji.Companion.getNoEmoji().contains(id)) {
+                Character trumpet = MCMoji.Companion.getEmojiMap().get("trumpet");
+                if (trumpet != null) {
+                    return trumpet.toString();
+                }
+            }
+        }
+        return "doot!";
+    }
+
 }
